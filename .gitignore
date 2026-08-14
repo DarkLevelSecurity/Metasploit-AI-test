@@ -1,0 +1,19 @@
+node_modules/
+dist/
+server/dist/
+client/dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+
+# Local secrets / AI keys (never commit)
+.settings.json
+**/settings.json
+.msf-gui/
+*.pem
+*.key
+credentials.*
+secrets.*
