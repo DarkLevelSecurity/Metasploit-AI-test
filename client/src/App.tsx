@@ -13,6 +13,7 @@ import { ConsolePage } from './pages/ConsolePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AssistantPage } from './pages/AssistantPage';
 
+// Top-level routes map the UI to the primary Metasploit workflows.
 export default function App() {
   return (
     <Routes>

@@ -19,6 +19,7 @@ import { settingsRouter } from './routes/settings.js';
 import { aiRouter } from './routes/ai.js';
 import { attachTerminalHub } from './ws/terminalHub.js';
 
+// Local bridge server: exposes the browser UI and routes Metasploit RPC requests.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3001);
 
@@ -26,6 +27,7 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '10mb' }));
 
+// Public endpoints are available before authentication; the rest require a connected session.
 app.use('/api', connectRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/ai', aiRouter);
@@ -45,6 +47,7 @@ app.use('/api', (req, res, next) => {
   requireAuth(req, res, next);
 });
 
+// Protected routes are tied to the live Metasploit RPC connection.
 app.use('/api/modules', modulesRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/sessions', sessionsRouter);
@@ -54,6 +57,7 @@ app.use('/api/plugins', pluginsRouter);
 app.use('/api/console', consoleRouter);
 app.use('/api/listeners', listenersRouter);
 
+// Serve the built client when the app is run in production mode.
 const clientDist = path.resolve(__dirname, '../../client/dist');
 app.use(express.static(clientDist));
 app.use((req, res, next) => {
@@ -70,6 +74,7 @@ app.use((req, res, next) => {
   });
 });
 
+// Terminal sessions are exposed through a dedicated WebSocket channel.
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws/terminal' });
 attachTerminalHub(wss);

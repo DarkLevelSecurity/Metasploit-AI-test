@@ -8,17 +8,56 @@ Browser UI for Metasploit Framework. A Node/TypeScript API bridge talks to `msfr
 2. Node.js 18+ and npm
 3. (Optional) `msfdb init` if you want Database pages populated
 
-## Start Metasploit RPC
+## Start Metasploit RPC Daemon
 
-From the Metasploit tree (Linux/macOS or WSL):
+> **Note:** Make sure you start the RPC **daemon** (`msfrpcd`), not the RPC client (`msfrpc`). Running `msfrpc` attempts to connect to an existing daemon, so if `msfrpcd` is not running yet, `msfrpc` will fail with a `ConnectionRefused` error.
 
+### Option A: Using `msfrpcd` daemon script
+
+**Windows (PowerShell):**
+```powershell
+C:\metasploit-framework\bin\msfrpcd.bat -U msf -P yourpassword -a 127.0.0.1 -p 55553
+```
+
+**Linux / macOS / WSL:**
 ```bash
 ./msfrpcd -U msf -P yourpassword -a 127.0.0.1 -p 55553
 ```
 
-On Windows with Ruby available, use the same `msfrpcd` script with equivalent flags.
+*(Add `-S` if you want to disable SSL and run plain HTTP RPC).*
 
-`-S` disables SSL if you prefer plain HTTP RPC. Default msfrpcd uses SSL; the GUI Connect form has an SSL checkbox.
+---
+
+### Option B: From inside `msfconsole`
+
+If `msfrpcd.bat` gives errors on Windows, open `msfconsole` and load the RPC plugin directly:
+
+```text
+msfconsole
+msf6 > load msfrpc ServerHost=127.0.0.1 ServerPort=55553 User=msf Pass=yourpassword
+```
+
+---
+
+### Verify the Daemon is Listening
+
+Before connecting from the GUI, test if port `55553` is listening:
+
+**Windows (PowerShell):**
+```powershell
+Test-NetConnection -ComputerName 127.0.0.1 -Port 55553
+# or check active TCP connections:
+Get-NetTCPConnection -LocalPort 55553
+```
+
+**Linux / macOS:**
+```bash
+ss -tuln | grep 55553
+# or
+nc -zv 127.0.0.1 55553
+```
+
+If `TcpTestSucceeded` is `True` (or `ss`/`nc` shows `LISTEN`/open), the RPC server is running and ready for GUI connection.
 
 ## Start the GUI
 

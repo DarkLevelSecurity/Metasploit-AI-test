@@ -4,6 +4,7 @@ import { encode, decode } from '@msgpack/msgpack';
 
 const textDecoder = new TextDecoder();
 
+// Thin RPC client for msfrpcd: handles auth, token refresh, and MessagePack decoding.
 export type MsfConnectionConfig = {
   host: string;
   port: number;
@@ -64,6 +65,8 @@ export class MsfRpcClient {
   private token: string | null = null;
   private cachedVersion: Record<string, unknown> | null = null;
 
+  // Shared state is intentionally small: the client keeps the active RPC config and token.
+
   get connected(): boolean {
     return Boolean(this.config && this.token);
   }
@@ -79,6 +82,7 @@ export class MsfRpcClient {
   }
 
   async connect(config: MsfConnectionConfig): Promise<Record<string, unknown>> {
+    // Metasploit RPC uses a login token that must be refreshed on auth failures.
     this.config = {
       uri: '/api/',
       ...config,
@@ -158,6 +162,7 @@ export class MsfRpcClient {
   }
 
   private httpPost(body: Buffer): Promise<Buffer> {
+    // MessagePack is the native wire format for msfrpcd requests and responses.
     if (!this.config) {
       return Promise.reject(new MsfRpcError('RPC client not configured', 400));
     }

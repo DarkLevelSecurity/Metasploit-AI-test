@@ -1,3 +1,4 @@
+// Shared fetch wrapper for API calls; all app requests go through here to centralize errors and timeouts.
 export class ApiError extends Error {
   status: number;
 
@@ -10,6 +11,7 @@ export class ApiError extends Error {
 type RequestOptions = RequestInit & { timeoutMs?: number };
 
 async function request<T>(path: string, init?: RequestOptions): Promise<T> {
+  // Network calls use a consistent timeout and parse JSON or surface a useful error message.
   const timeoutMs = init?.timeoutMs ?? 8000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
